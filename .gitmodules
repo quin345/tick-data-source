@@ -1,0 +1,3 @@
+[submodule "OpenApiPy"]
+	path = OpenApiPy
+	url = https://github.com/spotware/OpenApiPy.git
