@@ -136,3 +136,4 @@ dmypy.json
 credentials.json
 trade_test.py
 nb_1.ipynb
+test_*.py
