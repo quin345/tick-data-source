@@ -1,0 +1,23 @@
+[
+  {
+    "uniqueIdentifier": "a67cf51b-a374-45ca-8235-9b290ec60ddb",
+    "payload": {
+      "name": "EventStream",
+      "metadata": {
+        "eventstreamArtifactId": "b5cbc2f2-4fd6-410c-8cd2-45328809799e"
+      }
+    },
+    "type": "eventstreamSource-v1"
+  },
+  {
+    "uniqueIdentifier": "38b05326-7692-440e-a50c-e984931bd694",
+    "payload": {
+      "name": "ctrader_ingestion-stream",
+      "definition": {
+        "type": "Event",
+        "instance": "{\"templateId\":\"SourceEvent\",\"templateVersion\":\"1.1\",\"steps\":[{\"name\":\"SourceEventStep\",\"id\":\"bceedbff-366c-47ef-bc31-ca3fe524c75b\",\"rows\":[{\"name\":\"SourceSelector\",\"kind\":\"SourceReference\",\"arguments\":[{\"name\":\"entityId\",\"type\":\"string\",\"value\":\"a67cf51b-a374-45ca-8235-9b290ec60ddb\"}]}]}]}"
+      }
+    },
+    "type": "timeSeriesView-v1"
+  }
+]
