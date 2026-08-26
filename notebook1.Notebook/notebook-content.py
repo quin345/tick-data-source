@@ -36,14 +36,8 @@ import OpenApiMessages_pb2 as OA
 import OpenApiModelMessages_pb2 as OAModel
 import OpenApiCommonMessages_pb2 as OACommon
 import OpenApiCommonModelMessages_pb2 as OAModelCommon
-
-
-
 from twisted.internet import reactor
 import json
-
-
-
 from azure.eventhub import EventHubProducerClient, EventData
 from datetime import datetime, timezone
 import time
@@ -62,7 +56,7 @@ producer = EventHubProducerClient.from_connection_string(conn_str=CONNECTION_STR
 client = Client(EndPoints.PROTOBUF_LIVE_HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
 PROTO_OA_ERROR_RES_PAYLOAD_TYPE = OA.ProtoOAErrorRes().payloadType
 
-tickers = ['EURUSD', 'XAUUSD', 'USDCNH', 'XAGUSD']
+tickers = []
 symbol_ids = {}
 
 def safe_stop():
@@ -90,10 +84,12 @@ def onAccAuth(message):
 def onSymbolsList(message):
     response = Protobuf.extract(message)
     print('Symbols received')
+    tickers.clear()
+    symbol_ids.clear()
     for symbol in response.symbol:
-        if symbol.symbolName in tickers:
-            symbol_ids[symbol.symbolName] = symbol.symbolId
-            print(f'{symbol.symbolName} -> SymbolID {symbol.symbolId}')
+        tickers.append(symbol.symbolName)
+        symbol_ids[symbol.symbolName] = symbol.symbolId
+        print(f'{symbol.symbolName} -> SymbolID {symbol.symbolId}')
     subscribeToPrices()
 
 
