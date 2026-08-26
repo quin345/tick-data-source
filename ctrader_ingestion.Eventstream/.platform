@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Eventstream",
+    "displayName": "ctrader_ingestion"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8809799e-4532-8cd2-410c-4fd6b5cbc2f2"
+  }
+}

@@ -1,0 +1,6 @@
+[submodule "OpenApiPy"]
+	path = OpenApiPy
+	url = https://github.com/spotware/OpenApiPy.git
+[submodule "openapi-proto-messages"]
+	path = openapi-proto-messages
+	url = https://github.com/spotware/openapi-proto-messages.git
