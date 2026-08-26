@@ -1,12 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "SparkJobDefinition",
-    "displayName": "sjd1",
-    "description": "Spark job definition"
+    "type": "KQLDatabase",
+    "displayName": "ctrader"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "b7227656-f5cb-ad42-47ee-d1085f097c27"
+    "logicalId": "9eacedc3-ffe1-f965-ee77-64d00626a95d"
   }
 }
