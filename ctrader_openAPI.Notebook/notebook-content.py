@@ -27,7 +27,7 @@
 
 # CELL ********************
 
-from client import Client
+from client1 import Client
 from protobuf1 import Protobuf
 from tcpProtocol import TcpProtocol
 from auth import Auth
@@ -40,7 +40,6 @@ import OpenApiCommonModelMessages_pb2 as OAModelCommon
 
 
 from twisted.internet import reactor
-from twisted.internet.error import ConnectionLost
 import json
 
 
@@ -60,7 +59,7 @@ producer = EventHubProducerClient.from_connection_string(conn_str=CONNECTION_STR
 
 
 
-client = Client(EndPoints.PROTOBUF_DEMO_HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
+client = Client(EndPoints.PROTOBUF_LIVE_HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
 PROTO_OA_ERROR_RES_PAYLOAD_TYPE = OA.ProtoOAErrorRes().payloadType
 
 tickers = ['EURUSD', 'XAUUSD', 'USDCNH', 'XAGUSD']
@@ -130,7 +129,7 @@ def onMsg(client, message):
         event_data_batch = producer.create_batch()
         event_data_batch.add(EventData(message1))
         producer.send_batch(event_data_batch)
-        print(message1)
+
         
 
 
@@ -162,9 +161,6 @@ def connected(client):
 
 
 def disconnected(client, reason):
-    if reason.check(ConnectionLost) and not reactor.running:
-        print("Session closed")
-        return
     print("Disconnected:", reason)
     reconnect()
 
@@ -182,5 +178,7 @@ producer.close()
 
 # META {
 # META   "language": "python",
-# META   "language_group": "synapse_pyspark"
+# META   "language_group": "synapse_pyspark",
+# META   "frozen": false,
+# META   "editable": true
 # META }
