@@ -39,7 +39,6 @@ import OpenApiCommonModelMessages_pb2 as OAModelCommon
 from twisted.internet import reactor
 import json
 from azure.eventhub import EventHubProducerClient, EventData
-from datetime import datetime, timezone
 import time
 
 credentials = json.load(open(f"{notebookutils.nbResPath}/builtin/credentials.json"))
@@ -103,11 +102,8 @@ def subscribeToPrices():
     req = OA.ProtoOASubscribeSpotsReq()
     req.ctidTraderAccountId = credentials['accountId']
     req.symbolId.extend(symbol_ids.values())
+    req.subscribeToSpotTimestamp = True
     client.send(req)
-
-def get_current_timestamp():
-    """Return the current timestamp in ISO 8601 format."""
-    return datetime.now(timezone.utc).isoformat()
 
 def onMsg(client, message):
     if message.payloadType == OA.ProtoOASpotEvent().payloadType:
@@ -116,7 +112,7 @@ def onMsg(client, message):
         # print(f'Price update: {symbolName} Bid {response.bid} Ask {response.ask}')
         
         payload = {
-            "timestamp": get_current_timestamp(),
+            "timestamp": response.timestamp,
             "Symbol": symbolName,
             "Bid": response.bid,
             "Ask": response.ask
