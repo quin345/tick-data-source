@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "MLModel",
+    "displayName": "market_analysis"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "829497fa-7bc4-a91f-4218-c5881b8acf39"
+  }
+}
