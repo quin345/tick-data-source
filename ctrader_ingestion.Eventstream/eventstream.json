@@ -9,15 +9,15 @@
   ],
   "destinations": [
     {
-      "id": "66a2883c-7195-4c03-b01d-7a8407c6230e",
+      "id": "30aad7e7-b229-463f-b94a-526838b0fc3f",
       "name": "Eventhouse",
       "type": "Eventhouse",
       "properties": {
         "dataIngestionMode": "ProcessedIngestion",
         "workspaceId": "00000000-0000-0000-0000-000000000000",
         "itemId": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae",
-        "databaseName": "ctrader_kql",
-        "tableName": "tick_data3",
+        "databaseName": "ctrader",
+        "tableName": "tick_data1",
         "inputSerialization": {
           "type": "Json",
           "properties": {
@@ -34,32 +34,7 @@
         {
           "name": "ctrader_ingestion-stream",
           "schema": {
-            "columns": [
-              {
-                "name": "timestamp",
-                "type": "Nvarchar(max)",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Symbol",
-                "type": "Nvarchar(max)",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Bid",
-                "type": "BigInt",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Ask",
-                "type": "BigInt",
-                "fields": null,
-                "items": null
-              }
-            ]
+            "columns": []
           }
         }
       ]
@@ -87,32 +62,7 @@
         {
           "name": "ctrader_ingestion-stream",
           "schema": {
-            "columns": [
-              {
-                "name": "timestamp",
-                "type": "Nvarchar(max)",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Symbol",
-                "type": "Nvarchar(max)",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Bid",
-                "type": "BigInt",
-                "fields": null,
-                "items": null
-              },
-              {
-                "name": "Ask",
-                "type": "BigInt",
-                "fields": null,
-                "items": null
-              }
-            ]
+            "columns": []
           }
         }
       ]

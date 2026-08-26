@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "SparkJobDefinition",
-    "displayName": "sjd2",
+    "displayName": "sjd1",
     "description": "Spark job definition"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "46895c08-7033-8c63-412d-9120d24fef17"
+    "logicalId": "b7227656-f5cb-ad42-47ee-d1085f097c27"
   }
 }

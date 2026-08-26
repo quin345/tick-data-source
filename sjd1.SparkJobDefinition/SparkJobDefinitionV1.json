@@ -1,0 +1,11 @@
+{
+  "executableFile": "test_tick.py",
+  "defaultLakehouseArtifactId": "7cc77d9e-3c0b-4f75-806c-4374d799079c",
+  "mainClass": "",
+  "additionalLakehouseIds": [],
+  "retryPolicy": null,
+  "commandLineArguments": "",
+  "additionalLibraryUris": [],
+  "language": "Python",
+  "environmentArtifactId": "442ba72b-5074-aca0-4c14-3e0d15463a4b"
+}

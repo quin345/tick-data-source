@@ -12,8 +12,14 @@
     "tabs": [
       {
         "id": "8a0bf415-1b6c-4a86-b80a-73b1942889e3",
-        "content": "\n\n// This query returns the number of ingestions per hour in the given table.\ntick_data3\n| summarize IngestionCount = count() by bin(ingestion_time(), 1h)\n\n// See the most recent data - records ingested in the last 24 hours.\ntick_data3\n| sort by timestamp desc \n| where ingestion_time() between (now(-1d) .. now())\n| take 100   \n\n\n\n\n\n",
+        "content": "\n",
         "title": "Tab",
+        "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
+      },
+      {
+        "id": "c9b4fcc9-94b9-40fb-ac16-74a851517dcf",
+        "content": "// Use 'take' to view a sample number of records in the table and check the data.\ntick_data1\n| count\n",
+        "title": "",
         "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
       }
     ],
