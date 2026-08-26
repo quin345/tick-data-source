@@ -1,3 +1,6 @@
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+
 from client1 import Client
 from protobuf1 import Protobuf
 from tcpProtocol import TcpProtocol
