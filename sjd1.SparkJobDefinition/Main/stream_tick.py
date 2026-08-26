@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.getOrCreate()
-import notebookutils
+
 from client1 import Client
 from protobuf1 import Protobuf
 from tcpProtocol import TcpProtocol
@@ -16,7 +16,16 @@ from azure.eventhub import EventHubProducerClient, EventData
 from datetime import datetime, timezone
 import time
 
-credentials = json.load(open(f"{notebookutils.nbResPath}/builtin/credentials.json"))
+from pathlib import Path
+
+
+credentials_path = Path("/builtin/credentials.json")
+
+if not credentials_path.exists():
+    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
+
+with credentials_path.open() as credentials_file:
+    credentials = json.load(credentials_file)
 
 # Replace the placeholders with your Event Hubs connection string and event hub name
 EVENTHUB_NAME = credentials['eventHubName']
