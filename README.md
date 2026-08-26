@@ -1,4 +1,4 @@
-# Sourcing Market Tick Data with cTrader openAPI and Microsoft Fabric
+# cTrader openAPI and Microsoft Fabric Data Ingestion
 Repository for ingesting tick data from cTrader openAPI.
 
 Progress:
