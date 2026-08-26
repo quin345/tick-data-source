@@ -1,0 +1,86 @@
+{
+  "sources": [
+    {
+      "id": "226d41c3-ba75-4c2e-87a7-bb9707b867d8",
+      "name": "CustomEndpoint-Source",
+      "type": "CustomEndpoint",
+      "properties": {}
+    }
+  ],
+  "destinations": [
+    {
+      "id": "30aad7e7-b229-463f-b94a-526838b0fc3f",
+      "name": "Eventhouse",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "ProcessedIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae",
+        "databaseName": "ctrader",
+        "tableName": "tick_data1",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "ctrader_ingestion-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "ctrader_ingestion-stream",
+          "schema": {
+            "columns": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "a67cf51b-a374-45ca-8235-9b290ec60ddb",
+      "name": "Activator",
+      "type": "Activator",
+      "properties": {
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "4879ad26-68b8-a7c3-4cbc-dac3d06272f9",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "ctrader_ingestion-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "ctrader_ingestion-stream",
+          "schema": {
+            "columns": []
+          }
+        }
+      ]
+    }
+  ],
+  "streams": [
+    {
+      "id": "06578099-f901-4e67-9dd0-391194e328fe",
+      "name": "ctrader_ingestion-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": [
+        {
+          "name": "CustomEndpoint-Source"
+        }
+      ]
+    }
+  ],
+  "operators": [],
+  "compatibilityLevel": "1.1"
+}

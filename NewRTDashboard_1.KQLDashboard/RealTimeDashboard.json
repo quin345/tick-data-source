@@ -1,0 +1,42 @@
+{
+  "schema_version": 81,
+  "tiles": [],
+  "baseQueries": [],
+  "parameters": [
+    {
+      "kind": "duration",
+      "id": "92e46a68-8d5d-451e-ab82-cac19055be57",
+      "displayName": "Time range",
+      "description": "",
+      "beginVariableName": "_startTime",
+      "endVariableName": "_endTime",
+      "defaultValue": {
+        "kind": "dynamic",
+        "count": 1,
+        "unit": "hours"
+      },
+      "showOnPages": {
+        "kind": "all"
+      }
+    }
+  ],
+  "dataSources": [
+    {
+      "kind": "kusto-trident",
+      "clusterUri": "",
+      "name": "ctrader",
+      "databaseArtifactId": "155e7fae-ae3a-4ca3-8fae-deecb0f725c3",
+      "database": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae",
+      "workspace": "00000000-0000-0000-0000-000000000000",
+      "id": "46589450-a40c-4516-acc3-912d3e446c9b"
+    }
+  ],
+  "pages": [
+    {
+      "name": "Page 1",
+      "id": "2d33e4b0-9c19-41a4-9212-276be6821a0d"
+    }
+  ],
+  "queries": [],
+  "embeddedApps": []
+}
