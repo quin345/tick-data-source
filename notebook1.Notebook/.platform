@@ -1,11 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "Eventhouse",
-    "displayName": "ctrader"
+    "type": "Notebook",
+    "displayName": "notebook1"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "f268f93d-3670-8b42-48fb-7ca84285bc94"
+    "logicalId": "af3167d8-3066-ac22-40fe-40c880b22ad0"
   }
 }

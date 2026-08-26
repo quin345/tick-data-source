@@ -1,11 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "Notebook",
-    "displayName": "ctrader_openAPI"
+    "type": "KQLDatabase",
+    "displayName": "ctrader",
+    "description": "ctrader_kql"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "af3167d8-3066-ac22-40fe-40c880b22ad0"
+    "logicalId": "9eacedc3-ffe1-f965-ee77-64d00626a95d"
   }
 }
