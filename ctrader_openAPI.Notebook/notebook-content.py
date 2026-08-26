@@ -119,7 +119,6 @@ def onMsg(client, message):
             "Ask": response.ask
         }
         message1 = json.dumps(payload, default=lambda value: value.isoformat())
-        print(message1)
         event_data_batch = producer.create_batch()
         event_data_batch.add(EventData(message1))
         producer.send_batch(event_data_batch)
