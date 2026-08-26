@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Eventstream",
+    "displayName": "ctrader_tickdata_stream"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "aa9c3c0f-ab3e-9a3f-45a0-1c91b0e13ab4"
+  }
+}
