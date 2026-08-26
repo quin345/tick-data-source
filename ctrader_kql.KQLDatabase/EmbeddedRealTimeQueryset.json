@@ -1,0 +1,22 @@
+{
+  "queryset": {
+    "version": "1.0.0",
+    "dataSources": [
+      {
+        "id": "19f99f6f-1643-4fa7-8bb6-6355b467c58b",
+        "clusterUri": "https://trd-sk5cjq2s7aa1eksjmn.z9.kusto.fabric.microsoft.com",
+        "type": "Fabric",
+        "databaseItemId": "155e7fae-ae3a-4ca3-8fae-deecb0f725c3"
+      }
+    ],
+    "tabs": [
+      {
+        "id": "8a0bf415-1b6c-4a86-b80a-73b1942889e3",
+        "content": "\n\n// This query returns the number of ingestions per hour in the given table.\ntick_data3\n| summarize IngestionCount = count() by bin(ingestion_time(), 1h)\n\n// See the most recent data - records ingested in the last 24 hours.\ntick_data3\n| sort by timestamp desc \n| where ingestion_time() between (now(-1d) .. now())\n| take 100   \n\n\n\n\n\n",
+        "title": "Tab",
+        "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
+      }
+    ],
+    "querysetType": "Embedded"
+  }
+}

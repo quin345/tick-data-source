@@ -1,11 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "Eventhouse",
-    "displayName": "ctrader"
+    "type": "KQLDatabase",
+    "displayName": "ctrader_kql",
+    "description": "ctrader_kql"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "f268f93d-3670-8b42-48fb-7ca84285bc94"
+    "logicalId": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae"
   }
 }
