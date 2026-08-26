@@ -40,6 +40,7 @@ import OpenApiCommonModelMessages_pb2 as OAModelCommon
 
 
 from twisted.internet import reactor
+from twisted.internet.error import ConnectionLost
 import json
 
 
@@ -161,6 +162,9 @@ def connected(client):
 
 
 def disconnected(client, reason):
+    if reason.check(ConnectionLost) and not reactor.running:
+        print("Session closed")
+        return
     print("Disconnected:", reason)
     reconnect()
 
