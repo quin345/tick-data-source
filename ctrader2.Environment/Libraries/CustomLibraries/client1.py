@@ -2,7 +2,7 @@
 
 from twisted.internet.endpoints import clientFromString
 from twisted.application.internet import ClientService
-from protobuf import Protobuf
+from protobuf1 import Protobuf
 from factory import Factory
 from twisted.internet import reactor, defer
 
