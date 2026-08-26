@@ -1,0 +1,86 @@
+{
+  "sources": [
+    {
+      "id": "84ae0f19-1b4d-4948-9b53-14ae576067d0",
+      "name": "CustomEndpoint-Source",
+      "type": "CustomEndpoint",
+      "properties": {}
+    }
+  ],
+  "destinations": [
+    {
+      "id": "416eb09f-4301-4ab7-b9ea-d5a13029df0d",
+      "name": "Activator",
+      "type": "Activator",
+      "properties": {
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "4879ad26-68b8-a7c3-4cbc-dac3d06272f9",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "ctrader_tickdata_stream-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "ctrader_tickdata_stream-stream",
+          "schema": {
+            "columns": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "fab222c0-64cc-47ff-9145-b1ab218f695b",
+      "name": "Eventhouse",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "ProcessedIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae",
+        "databaseName": "ctrader",
+        "tableName": "tick_data3",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "ctrader_tickdata_stream-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "ctrader_tickdata_stream-stream",
+          "schema": {
+            "columns": []
+          }
+        }
+      ]
+    }
+  ],
+  "streams": [
+    {
+      "id": "f392abd7-cd48-467c-83bd-267d50e54c70",
+      "name": "ctrader_tickdata_stream-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": [
+        {
+          "name": "CustomEndpoint-Source"
+        }
+      ]
+    }
+  ],
+  "operators": [],
+  "compatibilityLevel": "1.1"
+}
