@@ -68,3 +68,39 @@ newToken = auth.refreshToken("refresh_Token")
 You have to pass the refresh token to "refreshToken" method, and it will return a new token JSON object which will have all the previously mentioned token properties.
 
 You can always refresh a token, even before it expires and the refresh token has no expiry, but you can only use it once.
+
+### Interactive OAuth Script
+
+The repository includes `oauth_authorize.py`, which opens the cTrader authorization page,
+receives the callback on localhost, and exchanges the authorization code for a token.
+
+First register the exact redirect URI below in your cTrader Open API application settings:
+
+```
+http://127.0.0.1:8765/callback
+```
+
+Then run the script from the `OpenApiPy` directory. Credentials can be supplied as options
+or environment variables:
+
+```bash
+export CTRADER_CLIENT_ID="your-client-id"
+export CTRADER_CLIENT_SECRET="your-client-secret"
+python oauth_authorize.py
+```
+
+The script writes `auth_tokens.json` containing the normal OAuth token response and also prints
+the JSON. To use a different output file, pass `--output`. To use a different registered
+localhost redirect URI, pass it with `--redirect-uri`.
+
+### Fetch Trading Accounts
+
+After authorization, fetch all account information and save the complete response to
+`account_info.json`:
+
+```bash
+python fetch_trading_accounts.py
+```
+
+The script reads `accessToken` from `auth_tokens.json`. Use `--token-file` and `--output` to
+choose different JSON files, or set `CTRADER_ACCESS_TOKEN` to provide the token directly.
