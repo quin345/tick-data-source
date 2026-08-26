@@ -39,6 +39,7 @@ import OpenApiCommonModelMessages_pb2 as OAModelCommon
 from twisted.internet import reactor
 import json
 from azure.eventhub import EventHubProducerClient, EventData
+from datetime import datetime, timezone
 import time
 
 credentials = json.load(open(f"{notebookutils.nbResPath}/builtin/credentials.json"))
@@ -112,12 +113,13 @@ def onMsg(client, message):
         # print(f'Price update: {symbolName} Bid {response.bid} Ask {response.ask}')
         
         payload = {
-            "timestamp": response.timestamp,
+            "timestamp": datetime.fromtimestamp(response.timestamp / 1000, tz=timezone.utc),
             "Symbol": symbolName,
             "Bid": response.bid,
             "Ask": response.ask
         }
-        message1 = json.dumps(payload)
+        message1 = json.dumps(payload, default=lambda value: value.isoformat())
+        print(message1)
         event_data_batch = producer.create_batch()
         event_data_batch.add(EventData(message1))
         producer.send_batch(event_data_batch)
