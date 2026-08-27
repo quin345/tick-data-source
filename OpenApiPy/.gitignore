@@ -133,7 +133,7 @@ dmypy.json
 /samples/jupyter/credentials-dev.json
 
 #development artifacts
-credentials.json
+*.json
 trade_test.py
 nb_1.ipynb
 test_*.py
