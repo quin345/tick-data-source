@@ -104,3 +104,19 @@ python fetch_trading_accounts.py
 
 The script reads `accessToken` from `auth_tokens.json`. Use `--token-file` and `--output` to
 choose different JSON files, or set `CTRADER_ACCESS_TOKEN` to provide the token directly.
+
+### Fetch Asset and Symbol Metadata
+
+After authorization (and preferably after fetching accounts), dump every broker asset and
+symbol with class, category, base/quote currency, swaps, and trading parameters:
+
+```bash
+export CTRADER_CLIENT_ID="your-client-id"
+export CTRADER_CLIENT_SECRET="your-client-secret"
+python fetch_asset_metadata.py
+```
+
+The script reads `accessToken` from `auth_tokens.json` and the account id / live-vs-demo
+host from `account_info.json`. It writes `asset_metadata.json`. Pass `--csv symbols.csv`
+for a flattened symbol table, `--account-id` to pick a specific account, and `--host live`
+or `--host demo` if you do not have `account_info.json`.
