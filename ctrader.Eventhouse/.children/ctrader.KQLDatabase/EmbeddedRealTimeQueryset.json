@@ -12,7 +12,7 @@
     "tabs": [
       {
         "id": "8a0bf415-1b6c-4a86-b80a-73b1942889e3",
-        "content": "\n",
+        "content": "SELECT TOP 100 * \nFROM tick_data3\nWHERE Symbol = 'HK50' AND timestamp IS NOT NULL\nORDER BY timestamp DESC;",
         "title": "Tab",
         "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
       },
