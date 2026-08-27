@@ -1,5 +1,5 @@
 {
-  "executableFile": "test_tick.py",
+  "executableFile": "stream_tick.py",
   "defaultLakehouseArtifactId": "7cc77d9e-3c0b-4f75-806c-4374d799079c",
   "mainClass": "",
   "additionalLakehouseIds": [],

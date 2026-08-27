@@ -1,5 +1,8 @@
-from client import Client
-from protobuf import Protobuf
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+
+from client1 import Client
+from protobuf1 import Protobuf
 from tcpProtocol import TcpProtocol
 from auth import Auth
 from endpoints import EndPoints
@@ -7,19 +10,22 @@ import OpenApiMessages_pb2 as OA
 import OpenApiModelMessages_pb2 as OAModel
 import OpenApiCommonMessages_pb2 as OACommon
 import OpenApiCommonModelMessages_pb2 as OAModelCommon
-
-
-
 from twisted.internet import reactor
 import json
-
-
-
 from azure.eventhub import EventHubProducerClient, EventData
 from datetime import datetime, timezone
 import time
 
-credentials = json.load(open('credentials.json'))
+from pathlib import Path
+
+
+credentials_path = Path("/builtin/credentials.json")
+
+if not credentials_path.exists():
+    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
+
+with credentials_path.open() as credentials_file:
+    credentials = json.load(credentials_file)
 
 # Replace the placeholders with your Event Hubs connection string and event hub name
 EVENTHUB_NAME = credentials['eventHubName']
@@ -30,10 +36,10 @@ producer = EventHubProducerClient.from_connection_string(conn_str=CONNECTION_STR
 
 
 
-client = Client(EndPoints.PROTOBUF_DEMO_HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
+client = Client(EndPoints.PROTOBUF_LIVE_HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
 PROTO_OA_ERROR_RES_PAYLOAD_TYPE = OA.ProtoOAErrorRes().payloadType
 
-tickers = ['EURUSD', 'XAUUSD', 'USDCNH', 'XAGUSD']
+tickers = []
 symbol_ids = {}
 
 def safe_stop():
@@ -61,10 +67,12 @@ def onAccAuth(message):
 def onSymbolsList(message):
     response = Protobuf.extract(message)
     print('Symbols received')
+    tickers.clear()
+    symbol_ids.clear()
     for symbol in response.symbol:
-        if symbol.symbolName in tickers:
-            symbol_ids[symbol.symbolName] = symbol.symbolId
-            print(f'{symbol.symbolName} -> SymbolID {symbol.symbolId}')
+        tickers.append(symbol.symbolName)
+        symbol_ids[symbol.symbolName] = symbol.symbolId
+        print(f'{symbol.symbolName} -> SymbolID {symbol.symbolId}')
     subscribeToPrices()
 
 
@@ -100,7 +108,7 @@ def onMsg(client, message):
         event_data_batch = producer.create_batch()
         event_data_batch.add(EventData(message1))
         producer.send_batch(event_data_batch)
-        print(message1)
+
         
 
 

@@ -103,11 +103,8 @@ def subscribeToPrices():
     req = OA.ProtoOASubscribeSpotsReq()
     req.ctidTraderAccountId = credentials['accountId']
     req.symbolId.extend(symbol_ids.values())
+    req.subscribeToSpotTimestamp = True
     client.send(req)
-
-def get_current_timestamp():
-    """Return the current timestamp in ISO 8601 format."""
-    return datetime.now(timezone.utc).isoformat()
 
 def onMsg(client, message):
     if message.payloadType == OA.ProtoOASpotEvent().payloadType:
@@ -116,12 +113,12 @@ def onMsg(client, message):
         # print(f'Price update: {symbolName} Bid {response.bid} Ask {response.ask}')
         
         payload = {
-            "timestamp": get_current_timestamp(),
+            "timestamp": datetime.fromtimestamp(response.timestamp / 1000, tz=timezone.utc),
             "Symbol": symbolName,
             "Bid": response.bid,
             "Ask": response.ask
         }
-        message1 = json.dumps(payload)
+        message1 = json.dumps(payload, default=lambda value: value.isoformat())
         event_data_batch = producer.create_batch()
         event_data_batch.add(EventData(message1))
         producer.send_batch(event_data_batch)
