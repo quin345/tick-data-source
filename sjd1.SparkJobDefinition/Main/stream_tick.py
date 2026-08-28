@@ -18,7 +18,7 @@ import time
 
 
 
-from notebookutils import notebookutils
+import notebookutils
 
 VAULT_URL = "https://ctrader.vault.azure.net/"
 

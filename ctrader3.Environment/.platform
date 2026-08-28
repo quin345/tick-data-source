@@ -1,12 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "KQLDatabase",
-    "displayName": "ctrader",
-    "description": "ctrader"
+    "type": "Environment",
+    "displayName": "ctrader3",
+    "description": "Environment"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "b0f725c3-deec-8fae-4ca3-ae3a155e7fae"
+    "logicalId": "8fc0dd34-0659-a23c-4daf-c4384fd47a46"
   }
 }
