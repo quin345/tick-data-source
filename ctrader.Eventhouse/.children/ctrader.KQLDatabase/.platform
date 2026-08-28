@@ -3,7 +3,7 @@
   "metadata": {
     "type": "KQLDatabase",
     "displayName": "ctrader",
-    "description": "ctrader_kql"
+    "description": "ctrader"
   },
   "config": {
     "version": "2.0",

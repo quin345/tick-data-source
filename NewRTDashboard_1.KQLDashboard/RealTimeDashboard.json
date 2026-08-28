@@ -3,14 +3,14 @@
   "tiles": [
     {
       "id": "9157974b-3c58-4ed2-8ac0-7b3794d4a83b",
-      "title": "Tick count by Symbol",
+      "title": "Top 20 (past 3 hours)",
       "visualType": "bar",
       "pageId": "2d33e4b0-9c19-41a4-9212-276be6821a0d",
       "layout": {
-        "x": 6,
-        "y": 1,
-        "width": 13,
-        "height": 11
+        "x": 5,
+        "y": 0,
+        "width": 15,
+        "height": 16
       },
       "queryRef": {
         "kind": "query",
@@ -39,10 +39,10 @@
         "seriesColumns": null,
         "xAxisScale": "linear",
         "verticalLine": "",
-        "crossFilter": [],
         "crossFilterDisabled": false,
         "drillthroughDisabled": false,
         "forceAxisTicks": false,
+        "crossFilter": [],
         "drillthrough": []
       }
     }
@@ -89,7 +89,7 @@
         "kind": "inline",
         "dataSourceId": "46589450-a40c-4516-acc3-912d3e446c9b"
       },
-      "text": "SELECT TOP 10 Symbol, COUNT(*) AS tick_count\r\nFROM tick_data3\r\nGROUP BY Symbol\r\nORDER BY tick_count DESC;",
+      "text": "tick_data3\r\n| where timestamp >= ago(3h)\r\n| summarize tick_count = count() by Symbol\r\n| top 20 by tick_count desc\r\n",
       "id": "4a696bc5-e824-483f-8a0f-25227464faf4",
       "usedVariables": []
     }
