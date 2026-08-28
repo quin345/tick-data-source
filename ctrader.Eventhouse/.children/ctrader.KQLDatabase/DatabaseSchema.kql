@@ -3,4 +3,3 @@
 
 
 .create-merge table tick_data3 (timestamp:datetime, Symbol:string, Bid:long, Ask:long) 
-
