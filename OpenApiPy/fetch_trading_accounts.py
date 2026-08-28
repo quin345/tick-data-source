@@ -9,21 +9,12 @@ import requests
 
 
 TRADING_ACCOUNTS_URL = "https://api.spotware.com/connect/tradingaccounts"
+BROKER = "icmarkets"
+DEFAULT_KEY_VAULT_URL = "https://ctrader.vault.azure.net/"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--token-file",
-        type=Path,
-        default=Path("auth_tokens.json"),
-        help="JSON file containing accessToken.",
-    )
-    parser.add_argument(
-        "--access-token",
-        default=os.getenv("CTRADER_ACCESS_TOKEN"),
-        help="Use this token instead of reading the token file.",
-    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -33,26 +24,34 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_access_token(token_file, access_token):
-    if access_token:
-        return access_token
+def load_access_token():
+    vault_url = os.getenv("AZURE_KEY_VAULT_URL", DEFAULT_KEY_VAULT_URL)
 
     try:
-        token_data = json.loads(token_file.read_text(encoding="utf-8"))
-    except FileNotFoundError as error:
-        raise SystemExit(f"Token file not found: {token_file}") from error
-    except json.JSONDecodeError as error:
-        raise SystemExit(f"Token file is not valid JSON: {token_file}") from error
+        from azure.identity import DefaultAzureCredential
+        from azure.keyvault.secrets import SecretClient
+    except ImportError as error:
+        raise SystemExit(
+            "Azure Key Vault support requires azure-identity and "
+            "azure-keyvault-secrets to be installed."
+        ) from error
 
-    access_token = token_data.get("accessToken")
+    secret_client = SecretClient(
+        vault_url=vault_url,
+        credential=DefaultAzureCredential(),
+    )
+    secret_name = os.getenv(
+        "CTRADER_ACCESS_TOKEN_SECRET", f"ctrader-access-token-{BROKER}"
+    )
+    access_token = secret_client.get_secret(secret_name).value
     if not access_token:
-        raise SystemExit(f"No accessToken found in {token_file}")
+        raise SystemExit(f"Azure Key Vault secret '{secret_name}' is empty.")
     return access_token
 
 
 def main():
     args = parse_args()
-    access_token = load_access_token(args.token_file, args.access_token)
+    access_token = load_access_token()
     response = requests.get(
         TRADING_ACCOUNTS_URL,
         params={"access_token": access_token},

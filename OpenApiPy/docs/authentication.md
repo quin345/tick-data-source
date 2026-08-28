@@ -102,21 +102,21 @@ After authorization, fetch all account information and save the complete respons
 python fetch_trading_accounts.py
 ```
 
-The script reads `accessToken` from `auth_tokens.json`. Use `--token-file` and `--output` to
-choose different JSON files, or set `CTRADER_ACCESS_TOKEN` to provide the token directly.
+The script reads the `ctrader-access-token-icmarkets` secret from Azure Key Vault. It uses
+`https://ctrader.vault.azure.net/` by default. Override the vault URL with
+`AZURE_KEY_VAULT_URL`, or override the secret name with `CTRADER_ACCESS_TOKEN_SECRET`.
 
 ### Fetch Asset and Symbol Metadata
 
-After authorization (and preferably after fetching accounts), dump every broker asset and
-symbol with class, category, base/quote currency, swaps, and trading parameters:
+Dump every broker asset and symbol with class, category, base/quote currency, swaps, and
+trading parameters. The script reads the single account ID and credentials from Azure Key
+Vault:
 
 ```bash
-export CTRADER_CLIENT_ID="your-client-id"
-export CTRADER_CLIENT_SECRET="your-client-secret"
 python fetch_asset_metadata.py
 ```
 
-The script reads `accessToken` from `auth_tokens.json` and the account id / live-vs-demo
-host from `account_info.json`. It writes `asset_metadata.json`. Pass `--csv symbols.csv`
-for a flattened symbol table, `--account-id` to pick a specific account, and `--host live`
-or `--host demo` if you do not have `account_info.json`.
+The default secrets are `ctrader-app-client-id`, `ctrader-app-client-secret`,
+`ctrader-access-token-icmarkets`, and `ctrader-account-id-icmarkets`. It writes
+`asset_metadata.json`. Pass `--csv symbols.csv` for a flattened symbol table, `--host demo`
+for a demo account, or `--account-id` to explicitly override the Key Vault account ID.

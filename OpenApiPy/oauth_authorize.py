@@ -14,6 +14,7 @@ import requests
 
 AUTHORIZATION_URL = "https://id.ctrader.com/my/settings/openapi/grantingaccess/"
 TOKEN_URL = "https://openapi.ctrader.com/apps/token"
+DEFAULT_KEY_VAULT_URL = "https://ctrader.vault.azure.net/"
 
 
 class OAuthCallbackHandler(http.server.BaseHTTPRequestHandler):
@@ -43,8 +44,16 @@ class OAuthCallbackHandler(http.server.BaseHTTPRequestHandler):
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--client-id", default=os.getenv("CTRADER_CLIENT_ID"))
-    parser.add_argument("--client-secret", default=os.getenv("CTRADER_CLIENT_SECRET"))
+    parser.add_argument(
+        "--client-id",
+        default=None,
+        help="Override the client ID from Azure Key Vault or CTRADER_CLIENT_ID.",
+    )
+    parser.add_argument(
+        "--client-secret",
+        default=None,
+        help="Override the client secret from Azure Key Vault or CTRADER_CLIENT_SECRET.",
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -61,12 +70,45 @@ def parse_args():
     return parser.parse_args()
 
 
+def load_client_credentials(args):
+    """Load OAuth client credentials, preferring Key Vault when configured."""
+    if args.client_id and args.client_secret:
+        return args.client_id, args.client_secret
+
+    vault_url = os.getenv("AZURE_KEY_VAULT_URL", DEFAULT_KEY_VAULT_URL)
+    try:
+        from azure.identity import DefaultAzureCredential
+        from azure.keyvault.secrets import SecretClient
+    except ImportError as error:
+        raise SystemExit(
+            "Azure Key Vault support requires azure-identity and "
+            "azure-keyvault-secrets to be installed."
+        ) from error
+
+    secret_client = SecretClient(
+        vault_url=vault_url,
+        credential=DefaultAzureCredential(),
+    )
+    client_id_secret = os.getenv("CTRADER_CLIENT_ID_SECRET", "ctrader-app-client-id")
+    client_secret_secret = os.getenv(
+        "CTRADER_CLIENT_SECRET_SECRET", "ctrader-app-client-secret"
+    )
+    client_id = secret_client.get_secret(client_id_secret).value
+    client_secret = secret_client.get_secret(client_secret_secret).value
+    return client_id, client_secret
+
+    return args.client_id or os.getenv("CTRADER_CLIENT_ID"), args.client_secret or os.getenv(
+        "CTRADER_CLIENT_SECRET"
+    )
+
+
 def main():
     args = parse_args()
+    args.client_id, args.client_secret = load_client_credentials(args)
     if not args.client_id or not args.client_secret:
         raise SystemExit(
-            "Provide --client-id and --client-secret, or set CTRADER_CLIENT_ID "
-            "and CTRADER_CLIENT_SECRET."
+            "Provide --client-id and --client-secret, set AZURE_KEY_VAULT_URL, "
+            "or set CTRADER_CLIENT_ID and CTRADER_CLIENT_SECRET."
         )
 
     redirect = urllib.parse.urlparse(args.redirect_uri)

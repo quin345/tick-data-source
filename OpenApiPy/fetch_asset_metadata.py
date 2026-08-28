@@ -6,8 +6,8 @@ currency, and one joined record per tradable symbol (ids, names, swaps, etc.).
 cTrader Open API does not provide a country field for instruments. Country-like
 context is limited to symbol description text when the broker fills it in.
 
-Requires application credentials plus an access token (see oauth_authorize.py)
-and a trading account id (from fetch_trading_accounts.py).
+Requires application credentials, an access token, and a trading account ID from
+Azure Key Vault. The default secret names are documented in README.md.
 """
 
 import argparse
@@ -36,6 +36,8 @@ from ctrader_open_api.messages.OpenApiMessages_pb2 import (
 
 SYMBOL_BY_ID_BATCH_SIZE = 100
 REQUEST_TIMEOUT_SECONDS = 60
+BROKER = "icmarkets"
+DEFAULT_KEY_VAULT_URL = "https://ctrader.vault.azure.net/"
 
 FLAT_CSV_COLUMNS = [
     "symbolId",
@@ -77,36 +79,24 @@ FLAT_CSV_COLUMNS = [
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--client-id", default=os.getenv("CTRADER_CLIENT_ID"))
-    parser.add_argument("--client-secret", default=os.getenv("CTRADER_CLIENT_SECRET"))
-    parser.add_argument(
-        "--token-file",
-        type=Path,
-        default=Path("auth_tokens.json"),
-        help="JSON file containing accessToken.",
-    )
+    parser.add_argument("--client-id", default=None)
+    parser.add_argument("--client-secret", default=None)
     parser.add_argument(
         "--access-token",
-        default=os.getenv("CTRADER_ACCESS_TOKEN"),
-        help="Use this token instead of reading the token file.",
-    )
-    parser.add_argument(
-        "--accounts-file",
-        type=Path,
-        default=Path("account_info.json"),
-        help="JSON from fetch_trading_accounts.py, used when --account-id is omitted.",
+        default=None,
+        help="Override the access token loaded from Key Vault.",
     )
     parser.add_argument(
         "--account-id",
         type=int,
-        default=_optional_int_env("CTRADER_ACCOUNT_ID"),
-        help="cTrader account id (ctidTraderAccountId).",
+        default=None,
+        help="Override the cTrader account ID loaded from Azure Key Vault.",
     )
     parser.add_argument(
         "--host",
         choices=("live", "demo"),
-        default=os.getenv("CTRADER_HOST"),
-        help="API host. Inferred from the accounts file when omitted.",
+        default=os.getenv("CTRADER_HOST", "live"),
+        help="API host. Defaults to live.",
     )
     parser.add_argument(
         "--include-archived",
@@ -127,93 +117,64 @@ def parse_args():
     return parser.parse_args()
 
 
-def _optional_int_env(name):
-    value = os.getenv(name)
-    return int(value) if value else None
+def key_vault_client():
+    try:
+        from azure.identity import DefaultAzureCredential
+        from azure.keyvault.secrets import SecretClient
+    except ImportError as error:
+        raise SystemExit(
+            "Azure Key Vault support requires azure-identity and "
+            "azure-keyvault-secrets to be installed."
+        ) from error
+
+    vault_url = os.getenv("AZURE_KEY_VAULT_URL", DEFAULT_KEY_VAULT_URL)
+    return SecretClient(vault_url=vault_url, credential=DefaultAzureCredential())
 
 
-def load_access_token(token_file, access_token):
+def load_client_credentials(client_id, client_secret):
+    if client_id and client_secret:
+        return client_id, client_secret
+
+    secret_client = key_vault_client()
+    client_id = secret_client.get_secret(
+        os.getenv("CTRADER_CLIENT_ID_SECRET", "ctrader-app-client-id")
+    ).value
+    client_secret = secret_client.get_secret(
+        os.getenv("CTRADER_CLIENT_SECRET_SECRET", "ctrader-app-client-secret")
+    ).value
+    return client_id, client_secret
+
+
+def load_access_token(access_token):
     if access_token:
         return access_token
 
+    secret_client = key_vault_client()
+    return secret_client.get_secret(
+        os.getenv("CTRADER_ACCESS_TOKEN_SECRET", f"ctrader-access-token-{BROKER}")
+    ).value
+
+
+def load_account_id(account_id):
+    if account_id is not None:
+        return account_id
+
+    secret_client = key_vault_client()
+    secret_name = os.getenv(
+        "CTRADER_ACCOUNT_ID_SECRET", f"ctrader-account-id-{BROKER}"
+    )
+    account_id = secret_client.get_secret(secret_name).value
     try:
-        token_data = json.loads(token_file.read_text(encoding="utf-8"))
-    except FileNotFoundError as error:
-        raise SystemExit(f"Token file not found: {token_file}") from error
-    except json.JSONDecodeError as error:
-        raise SystemExit(f"Token file is not valid JSON: {token_file}") from error
-
-    access_token = token_data.get("accessToken")
-    if not access_token:
-        raise SystemExit(f"No accessToken found in {token_file}")
-    return access_token
-
-
-def load_accounts(accounts_file):
-    if not accounts_file.exists():
-        return []
-    try:
-        payload = json.loads(accounts_file.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
-        raise SystemExit(f"Accounts file is not valid JSON: {accounts_file}") from error
-
-    if isinstance(payload, list):
-        return payload
-    if isinstance(payload, dict):
-        if isinstance(payload.get("data"), list):
-            return payload["data"]
-        return [payload]
-    return []
-
-
-def account_id_from_record(record):
-    for key in ("accountId", "ctidTraderAccountId", "accountNumber"):
-        if record.get(key) is not None:
-            return int(record[key])
-    return None
-
-
-def is_live_account(record):
-    if "live" in record:
-        return bool(record["live"])
-    if "isLive" in record:
-        return bool(record["isLive"])
-    return None
+        return int(account_id)
+    except (TypeError, ValueError) as error:
+        raise SystemExit(
+            f"Azure Key Vault secret '{secret_name}' must contain an integer account ID."
+        ) from error
 
 
 def resolve_account_and_host(args):
-    accounts = load_accounts(args.accounts_file)
-    account_id = args.account_id
-    host = args.host
-    selected = None
-
-    if account_id is None:
-        if not accounts:
-            raise SystemExit(
-                "Provide --account-id (or CTRADER_ACCOUNT_ID), or run "
-                "fetch_trading_accounts.py so account_info.json exists."
-            )
-        selected = accounts[0]
-        account_id = account_id_from_record(selected)
-        if account_id is None:
-            raise SystemExit(f"Could not find an account id in {args.accounts_file}")
-        print(f"Using account id {account_id} from {args.accounts_file}")
-    else:
-        for record in accounts:
-            if account_id_from_record(record) == account_id:
-                selected = record
-                break
-
-    if host is None:
-        live = is_live_account(selected) if selected else None
-        if live is None:
-            host = "demo"
-            print("Host not specified; defaulting to demo")
-        else:
-            host = "live" if live else "demo"
-            print(f"Using {host} host from {args.accounts_file}")
-
-    return account_id, host.lower()
+    account_id = load_account_id(args.account_id)
+    return account_id, args.host.lower()
 
 
 def proto_to_dict(message):
@@ -274,13 +235,16 @@ def write_csv(path, rows):
 
 def main():
     args = parse_args()
+    args.client_id, args.client_secret = load_client_credentials(
+        args.client_id, args.client_secret
+    )
     if not args.client_id or not args.client_secret:
         raise SystemExit(
             "Provide --client-id and --client-secret, or set CTRADER_CLIENT_ID "
             "and CTRADER_CLIENT_SECRET."
         )
 
-    access_token = load_access_token(args.token_file, args.access_token)
+    access_token = load_access_token(args.access_token)
     account_id, host = resolve_account_and_host(args)
     api_host = (
         EndPoints.PROTOBUF_LIVE_HOST if host == "live" else EndPoints.PROTOBUF_DEMO_HOST
@@ -337,6 +301,7 @@ def main():
             print(f"Loaded {len(light_symbols)} symbols")
 
             details_by_id = {}
+            symbol_details = []
             symbol_ids = [as_id(item["symbolId"]) for item in light_symbols]
             for start in range(0, len(symbol_ids), SYMBOL_BY_ID_BATCH_SIZE):
                 batch = symbol_ids[start : start + SYMBOL_BY_ID_BATCH_SIZE]
@@ -346,6 +311,7 @@ def main():
                 details_res = yield send(client, details_req)
                 for item in details_res.symbol:
                     details = proto_to_dict(item)
+                    symbol_details.append(details)
                     details_by_id[as_id(details["symbolId"])] = details
                 print(
                     f"Loaded full symbol details "
@@ -379,6 +345,8 @@ def main():
                 "symbolCategories": categories,
                 "trader": trader,
                 "archivedSymbols": archived_symbols,
+                "lightSymbols": light_symbols,
+                "symbolDetails": symbol_details,
                 "symbols": joined_symbols,
             }
             args.output.write_text(
