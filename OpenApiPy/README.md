@@ -79,6 +79,25 @@ reactor.run()
 
 Please check documentation or samples for a complete example.
 
+## Azure Key Vault credentials
+
+`test_hist_data.py` reads cTrader credentials from Azure Key Vault when
+`AZURE_KEY_VAULT_URL` is set. Authentication uses `DefaultAzureCredential`,
+so the script can use an Azure CLI login, managed identity, or another
+supported Azure identity.
+
+By default, the script reads these secret names:
+
+* `ctrader-account-id-{BROKER}`
+* `ctrader-access-token-{BROKER}`
+* `ctrader-app-client-id`
+* `ctrader-app-client-secret`
+
+Override individual names with `CTRADER_ACCOUNT_ID_SECRET`,
+`CTRADER_ACCESS_TOKEN_SECRET`, `CTRADER_CLIENT_ID_SECRET`, and
+`CTRADER_CLIENT_SECRET_SECRET`. Without `AZURE_KEY_VAULT_URL`, the script
+continues to use the local `credentials.json` file.
+
 ## Dependencies
 
 * <a href="https://pypi.org/project/twisted/">Twisted</a>
