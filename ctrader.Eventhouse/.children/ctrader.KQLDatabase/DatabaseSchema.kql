@@ -3,3 +3,5 @@
 
 
 .create-merge table tick_data3 (timestamp:datetime, Symbol:string, Bid:long, Ask:long) 
+.create-merge table tick_data1 (timestamp:string, Symbol:string, Bid:long, Ask:long, EventProcessedUtcTime:datetime, PartitionId:long, EventEnqueuedUtcTime:datetime) 
+.create-merge table tick_data2 (timestamp:datetime, Symbol:real, Bid:long, Ask:long) 
