@@ -26,6 +26,8 @@ protobuf = "7.36.0"
 requests = "2.32.3"
 inputimeout = "1.0.4"
 service-identity = "^24.1.0"
+azure-identity = "^1.17.1"
+azure-keyvault-secrets = "^4.8.0"
 
 [tool.poetry.group.dev.dependencies]
 Twisted = "24.3.0"
