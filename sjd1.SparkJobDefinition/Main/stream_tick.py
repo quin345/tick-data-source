@@ -16,16 +16,23 @@ from azure.eventhub import EventHubProducerClient, EventData
 from datetime import datetime, timezone
 import time
 
-from pathlib import Path
 
 
-credentials_path = Path("/builtin/credentials.json")
+from notebookutils import notebookutils
 
-if not credentials_path.exists():
-    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
+VAULT_URL = "https://ctrader.vault.azure.net/"
 
-with credentials_path.open() as credentials_file:
-    credentials = json.load(credentials_file)
+def get_secret(name):
+    return notebookutils.credentials.getSecret(VAULT_URL, name)
+
+credentials = {
+    "accountId": int(get_secret("ctrader-account-id-icmarkets")),
+    "accessToken": get_secret("ctrader-access-token-icmarkets"),
+    "clientId": get_secret("ctrader-app-client-id"),
+    "clientSecret": get_secret("ctrader-app-client-secret"),
+    "eventHubName": get_secret("eventHubName"),
+    "connectionString": get_secret("connectionString"),
+}
 
 # Replace the placeholders with your Event Hubs connection string and event hub name
 EVENTHUB_NAME = credentials['eventHubName']
@@ -33,6 +40,16 @@ CONNECTION_STR = credentials['connectionString']
 
 # Create a producer client to send messages to the event hub
 producer = EventHubProducerClient.from_connection_string(conn_str=CONNECTION_STR, eventhub_name=EVENTHUB_NAME)
+producer_closed = False
+
+
+def close_producer():
+    global producer_closed
+    if producer_closed:
+        return
+    producer_closed = True
+    print('Closing Event Hub producer')
+    producer.close()
 
 
 
@@ -148,6 +165,9 @@ client.setConnectedCallback(connected)
 client.setDisconnectedCallback(disconnected)
 client.setMessageReceivedCallback(onMsg)
 client.startService()
-reactor.run()
-print("producer closed")
-producer.close()
+reactor.addSystemEventTrigger('before', 'shutdown', close_producer)
+try:
+    reactor.run()
+finally:
+    close_producer()
+    print("producer closed")
