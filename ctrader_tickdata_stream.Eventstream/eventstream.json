@@ -9,6 +9,26 @@
   ],
   "destinations": [
     {
+      "id": "377feece-547a-49e1-963a-3f54d7e4df43",
+      "name": "3qgNizUv26RYaHHuR1aK1Y-d06272f9-dac3-4cbc-a7c3-68b84879ad26",
+      "type": "Activator",
+      "properties": {
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "4879ad26-68b8-a7c3-4cbc-dac3d06272f9",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "ctrader_tickdata_stream-stream"
+        }
+      ]
+    },
+    {
       "id": "416eb09f-4301-4ab7-b9ea-d5a13029df0d",
       "name": "Activator",
       "type": "Activator",
