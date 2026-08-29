@@ -1,10 +1,10 @@
 {
   "executableFile": "fetch_asset_metadata.py",
-  "defaultLakehouseArtifactId": null,
+  "defaultLakehouseArtifactId": "7cc77d9e-3c0b-4f75-806c-4374d799079c",
   "mainClass": "",
   "additionalLakehouseIds": [],
   "retryPolicy": null,
-  "commandLineArguments": "",
+  "commandLineArguments": "test",
   "additionalLibraryUris": [
     "fetch_asset_metadata.py"
   ],
