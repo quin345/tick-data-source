@@ -1,5 +1,5 @@
 {
-  "executableFile": "",
+  "executableFile": "fetch_asset_metadata.py",
   "defaultLakehouseArtifactId": null,
   "mainClass": "",
   "additionalLakehouseIds": [],
