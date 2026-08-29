@@ -4,7 +4,7 @@
   "mainClass": "",
   "additionalLakehouseIds": [],
   "retryPolicy": null,
-  "commandLineArguments": "test",
+  "commandLineArguments": "changed CLI argument on VS Code",
   "additionalLibraryUris": [
     "fetch_asset_metadata.py"
   ],
