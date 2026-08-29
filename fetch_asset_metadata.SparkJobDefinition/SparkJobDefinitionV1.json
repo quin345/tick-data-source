@@ -4,10 +4,8 @@
   "mainClass": "",
   "additionalLakehouseIds": [],
   "retryPolicy": null,
-  "commandLineArguments": "changed CLI argument on VS Code",
-  "additionalLibraryUris": [
-    "fetch_asset_metadata.py"
-  ],
+  "commandLineArguments": "",
+  "additionalLibraryUris": [],
   "language": "Python",
   "environmentArtifactId": "8fc0dd34-0659-a23c-4daf-c4384fd47a46"
 }
