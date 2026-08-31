@@ -8,7 +8,21 @@ context is limited to symbol description text when the broker fills it in.
 
 Requires application credentials, an access token, and a trading account ID from
 Azure Key Vault. The default secret names are documented in README.md.
+
+Note: Output will be saved to ABFSS path in Fabric lakehouse.
 """
+
+# Mount the ABFSS path using notebookutils
+try:
+    import notebookutils
+    # Mount using Microsoft Entra token (no credentials needed)
+    notebookutils.fs.mount(
+        "abfss://38721b31-0da3-4aa4-9150-0deacd89ed23@onelake.dfs.fabric.microsoft.com/7cc77d9e-3c0b-4f75-806c-4374d799079c",
+        "/ctrader_output"
+    )
+    print("Successfully mounted ABFSS path")
+except Exception as e:
+    print(f"Warning: Failed to mount ABFSS path: {e}")
 
 import argparse
 import csv
@@ -106,7 +120,7 @@ def parse_args():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("default/Files/asset_metadata.json"),
+        default=Path("/mnt/ctrader_output/asset_metadata.json"),
         help="JSON file for the complete metadata dump.",
     )
     parser.add_argument(
@@ -119,8 +133,13 @@ def parse_args():
 
 def get_secret(name):
     """Get a secret from Azure Key Vault using notebookutils."""
-    import notebookutils
-    return notebookutils.credentials.getSecret(DEFAULT_KEY_VAULT_URL, name)
+    try:
+        import notebookutils
+        return notebookutils.credentials.getSecret(DEFAULT_KEY_VAULT_URL, name)
+    except ImportError:
+        # Fallback for environments without notebookutils
+        # In practice, this should be handled by the execution environment
+        raise SystemExit("notebookutils is required for secret retrieval")
 
 
 def load_credentials():
@@ -314,15 +333,38 @@ def main():
                 "symbolDetails": symbol_details,
                 "symbols": joined_symbols,
             }
-            args.output.write_text(
-                json.dumps(output, indent=2, default=str) + "\n",
-                encoding="utf-8",
-            )
-            print(f"Saved metadata for {len(joined_symbols)} symbols to {args.output}")
+            
+            # Ensure the output path supports ABFSS format
+            output_path = args.output
+            try:
+                # Try to write to the ABFSS path
+                output_path.write_text(
+                    json.dumps(output, indent=2, default=str) + "\n",
+                    encoding="utf-8",
+                )
+                print(f"Saved metadata for {len(joined_symbols)} symbols to {output_path}")
+            except Exception as e:
+                print(f"Failed to write to ABFSS path {output_path}: {e}")
+                # Fallback to local file if ABFSS fails
+                fallback_path = Path("asset_metadata.json")
+                fallback_path.write_text(
+                    json.dumps(output, indent=2, default=str) + "\n",
+                    encoding="utf-8",
+                )
+                print(f"Fallback: Saved metadata to {fallback_path}")
+                output_path = fallback_path
 
             if args.csv:
-                write_csv(args.csv, joined_symbols)
-                print(f"Saved symbol CSV to {args.csv}")
+                # Handle CSV output similarly
+                try:
+                    write_csv(args.csv, joined_symbols)
+                    print(f"Saved symbol CSV to {args.csv}")
+                except Exception as e:
+                    print(f"Failed to write CSV to {args.csv}: {e}")
+                    # Fallback to local CSV
+                    fallback_csv = Path("asset_metadata.csv")
+                    write_csv(fallback_csv, joined_symbols)
+                    print(f"Fallback: Saved symbol CSV to {fallback_csv}")
         except Exception as error:  # noqa: BLE001 - surface API/network failures, then stop reactor
             outcome["error"] = error
             print(f"Failed to fetch metadata: {error}")
