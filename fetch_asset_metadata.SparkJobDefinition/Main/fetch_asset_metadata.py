@@ -117,63 +117,25 @@ def parse_args():
     return parser.parse_args()
 
 
-def key_vault_client():
-    try:
-        from azure.identity import ManagedIdentityCredential
-        from azure.keyvault.secrets import SecretClient
-    except ImportError as error:
-        raise SystemExit(
-            "Azure Key Vault support requires azure-identity and "
-            "azure-keyvault-secrets to be installed."
-        ) from error
-
-    vault_url = os.getenv("AZURE_KEY_VAULT_URL", DEFAULT_KEY_VAULT_URL)
-    return SecretClient(vault_url=vault_url, credential=ManagedIdentityCredential())
+def get_secret(name):
+    """Get a secret from Azure Key Vault using notebookutils."""
+    import notebookutils
+    return notebookutils.credentials.getSecret(DEFAULT_KEY_VAULT_URL, name)
 
 
-def load_client_credentials(client_id, client_secret):
-    if client_id and client_secret:
-        return client_id, client_secret
-
-    secret_client = key_vault_client()
-    client_id = secret_client.get_secret(
-        os.getenv("CTRADER_CLIENT_ID_SECRET", "ctrader-app-client-id")
-    ).value
-    client_secret = secret_client.get_secret(
-        os.getenv("CTRADER_CLIENT_SECRET_SECRET", "ctrader-app-client-secret")
-    ).value
-    return client_id, client_secret
-
-
-def load_access_token(access_token):
-    if access_token:
-        return access_token
-
-    secret_client = key_vault_client()
-    return secret_client.get_secret(
-        os.getenv("CTRADER_ACCESS_TOKEN_SECRET", f"ctrader-access-token-{BROKER}")
-    ).value
-
-
-def load_account_id(account_id):
-    if account_id is not None:
-        return account_id
-
-    secret_client = key_vault_client()
-    secret_name = os.getenv(
-        "CTRADER_ACCOUNT_ID_SECRET", f"ctrader-account-id-{BROKER}"
-    )
-    account_id = secret_client.get_secret(secret_name).value
-    try:
-        return int(account_id)
-    except (TypeError, ValueError) as error:
-        raise SystemExit(
-            f"Azure Key Vault secret '{secret_name}' must contain an integer account ID."
-        ) from error
+def load_credentials():
+    """Load all required credentials from Azure Key Vault."""
+    return {
+        "clientId": get_secret(os.getenv("CTRADER_CLIENT_ID_SECRET", "ctrader-app-client-id")),
+        "clientSecret": get_secret(os.getenv("CTRADER_CLIENT_SECRET_SECRET", "ctrader-app-client-secret")),
+        "accessToken": get_secret(os.getenv("CTRADER_ACCESS_TOKEN_SECRET", f"ctrader-access-token-{BROKER}")),
+        "accountId": int(get_secret(os.getenv("CTRADER_ACCOUNT_ID_SECRET", f"ctrader-account-id-{BROKER}"))),
+    }
 
 
 def resolve_account_and_host(args):
-    account_id = load_account_id(args.account_id)
+    credentials = load_credentials()
+    account_id = credentials["accountId"]
     return account_id, args.host.lower()
 
 
@@ -235,16 +197,19 @@ def write_csv(path, rows):
 
 def main():
     args = parse_args()
-    args.client_id, args.client_secret = load_client_credentials(
-        args.client_id, args.client_secret
-    )
+    
+    # Load credentials using notebookutils
+    credentials = load_credentials()
+    args.client_id = credentials["clientId"]
+    args.client_secret = credentials["clientSecret"]
+    
     if not args.client_id or not args.client_secret:
         raise SystemExit(
             "Provide --client-id and --client-secret, or set CTRADER_CLIENT_ID "
             "and CTRADER_CLIENT_SECRET."
         )
 
-    access_token = load_access_token(args.access_token)
+    access_token = credentials["accessToken"]
     account_id, host = resolve_account_and_host(args)
     api_host = (
         EndPoints.PROTOBUF_LIVE_HOST if host == "live" else EndPoints.PROTOBUF_DEMO_HOST
