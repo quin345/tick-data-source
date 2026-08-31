@@ -106,7 +106,7 @@ def parse_args():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("asset_metadata.json"),
+        default=Path("Files/asset_metadata.json"),
         help="JSON file for the complete metadata dump.",
     )
     parser.add_argument(
