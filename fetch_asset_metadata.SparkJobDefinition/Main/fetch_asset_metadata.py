@@ -12,18 +12,6 @@ Azure Key Vault. The default secret names are documented in README.md.
 Note: Output will be saved to ABFSS path in Fabric lakehouse.
 """
 
-# Mount the ABFSS path using notebookutils
-try:
-    import notebookutils
-    # Mount using Microsoft Entra token (no credentials needed)
-    notebookutils.fs.mount(
-        "abfss://38721b31-0da3-4aa4-9150-0deacd89ed23@onelake.dfs.fabric.microsoft.com/7cc77d9e-3c0b-4f75-806c-4374d799079c",
-        "/ctrader_output"
-    )
-    print("Successfully mounted ABFSS path")
-except Exception as e:
-    print(f"Warning: Failed to mount ABFSS path: {e}")
-
 import argparse
 import csv
 import json
@@ -120,7 +108,7 @@ def parse_args():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("/mnt/ctrader_output/asset_metadata.json"),
+        default=Path("Files/ctrader_output/asset_metadata.json"),
         help="JSON file for the complete metadata dump.",
     )
     parser.add_argument(
