@@ -119,7 +119,7 @@ def parse_args():
 
 def key_vault_client():
     try:
-        from azure.identity import DefaultAzureCredential
+        from azure.identity import ManagedIdentityCredential
         from azure.keyvault.secrets import SecretClient
     except ImportError as error:
         raise SystemExit(
@@ -128,7 +128,7 @@ def key_vault_client():
         ) from error
 
     vault_url = os.getenv("AZURE_KEY_VAULT_URL", DEFAULT_KEY_VAULT_URL)
-    return SecretClient(vault_url=vault_url, credential=DefaultAzureCredential())
+    return SecretClient(vault_url=vault_url, credential=ManagedIdentityCredential())
 
 
 def load_client_credentials(client_id, client_secret):
