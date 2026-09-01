@@ -9,8 +9,11 @@ context is limited to symbol description text when the broker fills it in.
 Requires application credentials, an access token, and a trading account ID from
 Azure Key Vault. The default secret names are documented in README.md.
 
-Note: Output will be saved to ABFSS path in Fabric lakehouse.
+Note: Output will be saved to Files/ path in SJD (automatically mapped to default lakehouse).
 """
+
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
 
 import argparse
 import csv
@@ -100,22 +103,14 @@ def parse_args():
         default=os.getenv("CTRADER_HOST", "live"),
         help="API host. Defaults to live.",
     )
-    parser.add_argument(
-        "--include-archived",
-        action="store_true",
-        help="Also request archived symbols.",
-    )
+
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("Files/ctrader_output/asset_metadata.json"),
+        default=Path("Files/asset_metadata"),
         help="JSON file for the complete metadata dump.",
     )
-    parser.add_argument(
-        "--csv",
-        type=Path,
-        help="Optional CSV of joined symbol rows.",
-    )
+
     return parser.parse_args()
 
 
@@ -192,14 +187,6 @@ def join_symbol(light, details, assets_by_id, classes_by_id, categories_by_id):
     joined["quoteAsset"] = quote_asset.get("name")
     joined["quoteAssetDisplayName"] = quote_asset.get("displayName")
     return joined
-
-
-def write_csv(path, rows):
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FLAT_CSV_COLUMNS, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({column: row.get(column) for column in FLAT_CSV_COLUMNS})
 
 
 def main():
@@ -316,43 +303,14 @@ def main():
                 "assetClasses": asset_classes,
                 "symbolCategories": categories,
                 "trader": trader,
-                "archivedSymbols": archived_symbols,
                 "lightSymbols": light_symbols,
                 "symbolDetails": symbol_details,
                 "symbols": joined_symbols,
             }
             
-            # Ensure the output path supports ABFSS format
-            output_path = args.output
-            try:
-                # Try to write to the ABFSS path
-                output_path.write_text(
-                    json.dumps(output, indent=2, default=str) + "\n",
-                    encoding="utf-8",
-                )
-                print(f"Saved metadata for {len(joined_symbols)} symbols to {output_path}")
-            except Exception as e:
-                print(f"Failed to write to ABFSS path {output_path}: {e}")
-                # Fallback to local file if ABFSS fails
-                fallback_path = Path("asset_metadata.json")
-                fallback_path.write_text(
-                    json.dumps(output, indent=2, default=str) + "\n",
-                    encoding="utf-8",
-                )
-                print(f"Fallback: Saved metadata to {fallback_path}")
-                output_path = fallback_path
-
-            if args.csv:
-                # Handle CSV output similarly
-                try:
-                    write_csv(args.csv, joined_symbols)
-                    print(f"Saved symbol CSV to {args.csv}")
-                except Exception as e:
-                    print(f"Failed to write CSV to {args.csv}: {e}")
-                    # Fallback to local CSV
-                    fallback_csv = Path("asset_metadata.csv")
-                    write_csv(fallback_csv, joined_symbols)
-                    print(f"Fallback: Saved symbol CSV to {fallback_csv}")
+        try:
+            df = spark.createDataFrame([output])
+            df.write.mode("overwrite").json("Files/asset_metadata")
         except Exception as error:  # noqa: BLE001 - surface API/network failures, then stop reactor
             outcome["error"] = error
             print(f"Failed to fetch metadata: {error}")
