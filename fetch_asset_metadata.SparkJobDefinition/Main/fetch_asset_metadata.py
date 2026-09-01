@@ -253,7 +253,6 @@ def main():
 
             symbols_req = ProtoOASymbolsListReq()
             symbols_req.ctidTraderAccountId = account_id
-            symbols_req.includeArchivedSymbols = args.include_archived
             symbols_res = yield send(client, symbols_req)
             light_symbols = [proto_to_dict(item) for item in symbols_res.symbol]
             archived_symbols = [proto_to_dict(item) for item in symbols_res.archivedSymbol]
