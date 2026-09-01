@@ -21,6 +21,12 @@
         "content": "// Use 'take' to view a sample number of records in the table and check the data.\ntick_data1\n| count\n",
         "title": "",
         "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
+      },
+      {
+        "id": "cd9e41e0-5c89-47a1-abd5-bdd33e5cf98f",
+        "content": "// Use 'take' to view a sample number of records in the table and check the data.\ntick_data3\n| take 100\n",
+        "title": "",
+        "dataSourceId": "19f99f6f-1643-4fa7-8bb6-6355b467c58b"
       }
     ],
     "querysetType": "Embedded"
