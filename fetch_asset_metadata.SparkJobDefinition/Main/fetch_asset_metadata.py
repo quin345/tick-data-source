@@ -307,8 +307,6 @@ def main():
                 "symbolDetails": symbol_details,
                 "symbols": joined_symbols,
             }
-            
-        try:
             df = spark.createDataFrame([output])
             df.write.mode("overwrite").json("Files/asset_metadata")
         except Exception as error:  # noqa: BLE001 - surface API/network failures, then stop reactor
